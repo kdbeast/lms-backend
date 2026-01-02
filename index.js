@@ -15,7 +15,7 @@ connectToDB();
 // default middleware
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: "http://localhost:5174",
     credentials: true,
   })
 );
