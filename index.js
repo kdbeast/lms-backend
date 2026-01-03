@@ -4,6 +4,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import connectToDB from "./database/db.js";
 import userRouter from "./routes/user.route.js";
+import courseRouter from "./routes/course.route.js";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 
 //apis
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/course", courseRouter);
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
