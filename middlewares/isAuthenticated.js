@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 const isAuthenticated = (req, res, next) => {
   try {
     const token = req.cookies.token;
@@ -16,7 +18,7 @@ const isAuthenticated = (req, res, next) => {
       });
     }
 
-    req.id = decodedToken.id;
+    req.id = decodedToken.userId;
 
     next();
   } catch (error) {
