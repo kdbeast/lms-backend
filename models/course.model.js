@@ -4,7 +4,7 @@ const courseSchema = new Schema(
   {
     courseTitle: { type: String, required: true },
     subTitle: { type: String },
-    description: { type: String, required: true },
+    description: { type: String },
     category: {
       type: String,
       required: true,
@@ -45,4 +45,4 @@ const courseSchema = new Schema(
   }
 );
 
-export default model("Course", courseSchema);
+export const Course = model("Course", courseSchema);

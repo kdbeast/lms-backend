@@ -1,4 +1,4 @@
-import Course from "../models/course.model.js";
+import { Course } from "../models/course.model.js";
 
 export const createCourse = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const createCourse = async (req, res) => {
     const course = await Course.create({
       courseTitle,
       category,
-      creator: req.user._id,
+      creator: req.id,
     });
 
     return res
