@@ -1,11 +1,12 @@
 import express from "express";
+import upload from "../utils/multer.js";
 import {
-  createCourse,
-  getAllAdminCourses,
   editCourse,
+  createCourse,
+  getCourseById,
+  getAllAdminCourses,
 } from "../controllers/course.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
-import upload from "../utils/multer.js";
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.route("/").get(isAuthenticated, getAllAdminCourses);
 router
   .route("/:courseId")
   .put(isAuthenticated, upload.single("courseThumbnail"), editCourse);
+router.route("/:courseId").get(isAuthenticated, getCourseById);
 
 export default router;
