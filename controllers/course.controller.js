@@ -1,4 +1,8 @@
 import { Course } from "../models/course.model.js";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/cloudinary.js";
 
 export const createCourse = async (req, res) => {
   try {
@@ -36,5 +40,62 @@ export const getAllAdminCourses = async (req, res) => {
     return res.status(200).json({ courses });
   } catch (error) {
     return res.status(500).json({ message: "Failed to get courses" });
+  }
+};
+
+export const editCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const {
+      courseTitle,
+      subTitle,
+      description,
+      category,
+      courseLevel,
+      coursePrice,
+    } = req.body;
+    const thumbnail = req.file;
+
+    let course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    let courseThumbnail;
+    if (thumbnail) {
+      if (course.courseThumbnail) {
+        const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
+        await deleteFromCloudinary(publicId); // delete old thumbnail
+      }
+      // upload new thumbnail
+      const uploadResponse = await uploadToCloudinary(thumbnail.path);
+      courseThumbnail = uploadResponse.secure_url;
+    }
+
+    const updateData = {
+      courseTitle,
+      subTitle,
+      description,
+      category,
+      courseLevel,
+      coursePrice,
+    };
+
+    // Only add courseThumbnail if a new one was uploaded
+    if (courseThumbnail) {
+      updateData.courseThumbnail = courseThumbnail;
+    }
+
+    course = await Course.findByIdAndUpdate(courseId, updateData, {
+      new: true,
+    });
+
+    return res
+      .status(200)
+      .json({ course, message: "Course updated successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Failed to edit course" });
   }
 };
