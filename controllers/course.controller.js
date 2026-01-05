@@ -1,8 +1,9 @@
-import { Course } from "../models/course.model.js";
 import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../utils/cloudinary.js";
+import { Course } from "../models/course.model.js";
+import { Lecture } from "../models/lecture.model.js";
 
 export const createCourse = async (req, res) => {
   try {
@@ -113,5 +114,31 @@ export const getCourseById = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Failed to get course by id" });
+  }
+};
+
+export const createLecture = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { lectureTitle } = req.body;
+
+    if (!lectureTitle || !courseId) {
+      return res.status(400).json({ message: "Lecture title is required" });
+    }
+
+    const lecture = await Lecture.create({ lectureTitle });
+
+    const course = await Course.findById(courseId);
+    if (course) {
+      course.lectures.push(lecture._id);
+      await course.save();
+    }
+
+    return res
+      .status(201)
+      .json({ lecture, message: "Lecture created successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Failed to create lecture" });
   }
 };
