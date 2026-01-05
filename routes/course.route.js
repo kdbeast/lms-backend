@@ -2,9 +2,12 @@ import express from "express";
 import upload from "../utils/multer.js";
 import {
   editCourse,
+  editLecture,
   createCourse,
   getCourseById,
   createLecture,
+  deleteLecture,
+  getLectureById,
   getAllAdminCourses,
   getLectureByCourseId,
 } from "../controllers/course.controller.js";
@@ -20,5 +23,8 @@ router
 router.route("/:courseId").get(isAuthenticated, getCourseById);
 router.route("/:courseId/lecture").post(isAuthenticated, createLecture);
 router.route("/:courseId/lecture").get(isAuthenticated, getLectureByCourseId);
+router.route("/:courseId/lecture/:lectureId").post(isAuthenticated, editLecture);
+router.route("/lecture/:lectureId").delete(isAuthenticated, deleteLecture);
+router.route("/lecture/:lectureId").get(isAuthenticated, getLectureById);
 
 export default router;

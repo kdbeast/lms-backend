@@ -4,6 +4,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import connectToDB from "./database/db.js";
 import userRouter from "./routes/user.route.js";
+import mediaRouter from "./routes/media.route.js";
 import courseRouter from "./routes/course.route.js";
 
 dotenv.config();
@@ -16,7 +17,7 @@ connectToDB();
 // default middleware
 app.use(
   cors({
-    origin: "http://localhost:5174",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -25,6 +26,7 @@ app.use(cookieParser());
 
 //apis
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/media", mediaRouter);
 app.use("/api/v1/course", courseRouter);
 
 app.listen(PORT, () => {
