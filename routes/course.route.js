@@ -6,6 +6,7 @@ import {
   getCourseById,
   createLecture,
   getAllAdminCourses,
+  getLectureByCourseId,
 } from "../controllers/course.controller.js";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 
@@ -18,5 +19,6 @@ router
   .put(isAuthenticated, upload.single("courseThumbnail"), editCourse);
 router.route("/:courseId").get(isAuthenticated, getCourseById);
 router.route("/:courseId/lecture").post(isAuthenticated, createLecture);
+router.route("/:courseId/lecture").get(isAuthenticated, getLectureByCourseId);
 
 export default router;
