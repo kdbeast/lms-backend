@@ -18,5 +18,5 @@ router
 router
   .route("/course/:courseId/detail-with-status")
   .get(isAuthenticated, getPurchaseCourseDetailWithPurchaseStatus);
-router.route("/all").get(isAuthenticated, getAllPurchasedCourse);
+router.route("/").get(isAuthenticated, getAllPurchasedCourse);
 export default router;
