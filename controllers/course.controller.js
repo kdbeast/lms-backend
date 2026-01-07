@@ -239,6 +239,56 @@ export const getLectureById = async (req, res) => {
   }
 };
 
+export const searchCourses = async (req, res) => {
+  try {
+    const { query = "", category = [], sortByPrice = "" } = req.query;
+
+    // create search criteria
+    const searchCriteria = {
+      isPublished: true,
+    };
+
+    // only apply $or search if query is provided and not just whitespace
+    if (query && query.trim() !== "") {
+      searchCriteria.$or = [
+        { courseTitle: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } },
+        { subTitle: { $regex: query, $options: "i" } },
+      ];
+    }
+
+    // Ensure category is always an array
+    const categories = Array.isArray(category)
+      ? category
+      : category
+      ? [category]
+      : [];
+
+    // if category is provided
+    if (categories.length > 0) {
+      searchCriteria.category = { $in: categories };
+    }
+
+    // if sortByPrice is provided
+    const sortOptions = {};
+    if (sortByPrice === "low" || sortByPrice === "high") {
+      sortOptions.coursePrice = sortByPrice === "low" ? 1 : -1;
+    }
+
+    const courses = await Course.find(searchCriteria)
+      .populate({
+        path: "creator",
+        select: "name photoUrl",
+      })
+      .sort(sortOptions);
+
+    return res.status(200).json({ courses: courses || [] });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Failed to search courses" });
+  }
+};
+
 export const getPublishedCourses = async (_, res) => {
   try {
     const courses = await Course.find({ isPublished: true }).populate({

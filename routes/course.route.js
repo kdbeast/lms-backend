@@ -7,6 +7,7 @@ import {
   getCourseById,
   createLecture,
   deleteLecture,
+  searchCourses,
   getLectureById,
   getAllAdminCourses,
   togglePublishCourse,
@@ -18,6 +19,7 @@ import isAuthenticated from "../middlewares/isAuthenticated.js";
 const router = express.Router();
 
 router.route("/").post(isAuthenticated, createCourse);
+router.route("/search").get(isAuthenticated, searchCourses);
 router.route("/").get(isAuthenticated, getAllAdminCourses);
 router
   .route("/:courseId")
