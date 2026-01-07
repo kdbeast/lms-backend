@@ -33,7 +33,7 @@ export const getCourseProgress = async (req, res) => {
     }
 
     // Step 3: Return the user's course progress along with course details
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: {
         courseDetails,
@@ -43,7 +43,7 @@ export const getCourseProgress = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching course progress:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Failed to fetch course progress.",
     });
@@ -97,10 +97,14 @@ export const updateLectureProgress = async (req, res) => {
 
     await courseProgress.save();
 
-    res.status(200).json({ message: "Lecture progress updated successfully." });
+    return res
+      .status(200)
+      .json({ message: "Lecture progress updated successfully." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to update lecture progress." });
+    return res
+      .status(500)
+      .json({ message: "Failed to update lecture progress." });
   }
 };
 

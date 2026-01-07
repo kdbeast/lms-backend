@@ -24,7 +24,7 @@ router.route("/").get(isAuthenticated, getAllAdminCourses);
 router
   .route("/:courseId")
   .put(isAuthenticated, upload.single("courseThumbnail"), editCourse);
-router.route("/published-courses").get(isAuthenticated, getPublishedCourses);
+router.route("/published-courses").get(getPublishedCourses);
 router.route("/:courseId").get(isAuthenticated, getCourseById);
 router.route("/:courseId/lecture").post(isAuthenticated, createLecture);
 router.route("/:courseId/lecture").get(isAuthenticated, getLectureByCourseId);

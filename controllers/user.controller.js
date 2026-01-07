@@ -67,11 +67,7 @@ export const loginUser = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
 
-    generateToken(res, user, `Welcome ${user.name}`);
-
-    return res
-      .status(200)
-      .json({ success: true, message: "User logged in successfully" });
+    return generateToken(res, user, `Welcome ${user.name}`);
   } catch (error) {
     return res.status(500).json({
       success: false,

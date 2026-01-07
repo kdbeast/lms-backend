@@ -136,7 +136,7 @@ export const stripeWebhook = async (req, res) => {
     }
   }
 
-  res.status(200).send();
+  return res.status(200).send();
 };
 
 export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
@@ -160,13 +160,15 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
     return res.status(200).json({ course, purchased: !!purchased });
   } catch (error) {
     console.error("Error fetching purchase course details:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
 export const getAllPurchasedCourse = async (_, res) => {
   try {
-    const purchasedCourse = await CoursePurchase.find({ status: "completed" })
-      .populate({ path: "courseId" });
+    const purchasedCourse = await CoursePurchase.find({
+      status: "completed",
+    }).populate({ path: "courseId" });
 
     if (!purchasedCourse)
       return res.status(404).json({ message: "No purchased courses found" });
@@ -174,5 +176,6 @@ export const getAllPurchasedCourse = async (_, res) => {
     return res.status(200).json(purchasedCourse);
   } catch (error) {
     console.error("Error fetching purchased courses:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
