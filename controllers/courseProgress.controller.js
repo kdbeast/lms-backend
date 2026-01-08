@@ -121,7 +121,7 @@ export const markAsCompleted = async (req, res) => {
       return res.status(404).json({ message: "Course progress not found." });
     }
 
-    courseProgress.lecturesProgress.map(
+    courseProgress.lecturesProgress.forEach(
       (lectureProgress) => (lectureProgress.viewed = true)
     );
     courseProgress.completed = true;
@@ -130,7 +130,9 @@ export const markAsCompleted = async (req, res) => {
     return res.status(200).json({ message: "Course marked as completed." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to mark course as completed." });
+    return res
+      .status(500)
+      .json({ message: "Failed to mark course as completed." });
   }
 };
 
@@ -146,7 +148,7 @@ export const markAsInCompleted = async (req, res) => {
       return res.status(404).json({ message: "Course progress not found." });
     }
 
-    courseProgress.lecturesProgress.map(
+    courseProgress.lecturesProgress.forEach(
       (lectureProgress) => (lectureProgress.viewed = false)
     );
     courseProgress.completed = false;
@@ -154,6 +156,8 @@ export const markAsInCompleted = async (req, res) => {
     return res.status(200).json({ message: "Course marked as incompleted." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to mark course as completed." });
+    return res
+      .status(500)
+      .json({ message: "Failed to mark course as completed." });
   }
 };
