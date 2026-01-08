@@ -10,17 +10,10 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    if(!name){
-      return res.status(400).json({ success: false, message: "Name is required" });
-    }
-    if(!email){
-      return res.status(400).json({ success: false, message: "Email is required" });
-    }
-    if(!password){
-      return res.status(400).json({ success: false, message: "Password is required" });
-    }
-    if(!role){
-      return res.status(400).json({ success: false, message: "Role is required" });
+    if (!name || !email || !password || !role) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     const user = await User.findOne({ email });

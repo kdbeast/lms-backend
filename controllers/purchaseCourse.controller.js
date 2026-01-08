@@ -145,19 +145,30 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
     const { courseId } = req.params;
 
     const course = await Course.findById(courseId)
-      .populate({ path: "creator" })
-      .populate({ path: "lectures" });
+      .populate({
+        path: "creator",
+        select: "-password -email -role -photoUrl -enrolledCourses",
+      })
+      .populate({
+        path: "lectures",
+        match: { isPreviewFree: true },
+        select: "-publicId",
+      })
 
     const purchased = await CoursePurchase.findOne({
       userId,
       courseId,
+      status: "completed",
     });
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    return res.status(200).json({ course, purchased: !!purchased });
+    return res.status(200).json({
+      course,
+      purchased: !!purchased,
+    });
   } catch (error) {
     console.error("Error fetching purchase course details:", error);
     return res.status(500).json({ message: "Internal server error" });
