@@ -80,7 +80,7 @@ export const logoutUser = async (_, res) => {
   try {
     return res
       .status(200)
-      .cookie("token", "", { maxAge: 0 })
+      .cookie("token", "", { maxAge: 0, sameSite: "none", secure: true })
       .json({ success: true, message: "User logged out successfully" });
   } catch (error) {
     return res.status(500).json({
