@@ -15,6 +15,12 @@ export const createCheckoutSession = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found." });
 
+    if (course.creator.toString() === userId) {
+      return res
+        .status(400)
+        .json({ message: "You cannot purchase your own course." });
+    }
+
     // Create a new course purchase record
     const newPurchase = new CoursePurchase({
       courseId,
@@ -107,14 +113,6 @@ export const stripeWebhook = async (req, res) => {
       }
       purchase.status = "completed";
 
-      // Make all lectures visible by setting `isPreviewFree` to true
-      if (purchase.courseId && purchase.courseId.lectures.length > 0) {
-        await Lecture.updateMany(
-          { _id: { $in: purchase.courseId.lectures } },
-          { $set: { isPreviewFree: true } }
-        );
-      }
-
       await purchase.save();
 
       // Update user's enrolledCourses
@@ -167,7 +165,7 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
 
     return res.status(200).json({
       course,
-      purchased: !!purchased,
+      purchased: !!purchased || course.creator?._id.toString() === userId,
     });
   } catch (error) {
     console.error("Error fetching purchase course details:", error);
@@ -175,7 +173,7 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
   }
 };
 
-export const getAllPurchasedCourse = async (_, res) => {
+export const getAllPurchasedCourse = async (req, res) => {
   try {
     const purchasedCourse = await CoursePurchase.find({
       status: "completed",
@@ -184,7 +182,13 @@ export const getAllPurchasedCourse = async (_, res) => {
     if (!purchasedCourse)
       return res.status(404).json({ message: "No purchased courses found" });
 
-    return res.status(200).json(purchasedCourse);
+    // Filter only those courses which are created by this instructor
+    const instructorPurchasedCourse = purchasedCourse.filter(
+      (purchase) =>
+        purchase.courseId && purchase.courseId.creator.toString() === req.id
+    );
+
+    return res.status(200).json(instructorPurchasedCourse);
   } catch (error) {
     console.error("Error fetching purchased courses:", error);
     return res.status(500).json({ message: "Internal server error" });
