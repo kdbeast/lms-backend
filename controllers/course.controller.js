@@ -25,6 +25,7 @@ export const createCourse = async (req, res) => {
       .status(201)
       .json({ course, message: "Course created successfully" });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "Failed to create course" });
   }
 };
@@ -120,13 +121,20 @@ export const getCourseById = async (req, res) => {
 export const createLecture = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { lectureTitle } = req.body;
+    const { lectureTitle, isPreviewFree, videoInfo } = req.body;
 
-    if (!lectureTitle || !courseId) {
-      return res.status(400).json({ message: "Lecture title is required" });
+    if (!lectureTitle || !courseId || !videoInfo?.videoUrl) {
+      return res
+        .status(400)
+        .json({ message: "Lecture title and video url are required" });
     }
 
-    const lecture = await Lecture.create({ lectureTitle });
+    const lecture = await Lecture.create({
+      lectureTitle,
+      isPreviewFree,
+      videoUrl: videoInfo?.videoUrl,
+      publicId: videoInfo?.publicId,
+    });
 
     const course = await Course.findById(courseId);
     if (course) {

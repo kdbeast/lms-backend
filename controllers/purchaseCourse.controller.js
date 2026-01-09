@@ -153,7 +153,7 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
         path: "lectures",
         match: { isPreviewFree: true },
         select: "-publicId",
-      })
+      });
 
     const purchased = await CoursePurchase.findOne({
       userId,
