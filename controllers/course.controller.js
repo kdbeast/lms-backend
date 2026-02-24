@@ -279,8 +279,14 @@ export const searchCourses = async (req, res) => {
 
     // if sortByPrice is provided
     const sortOptions = {};
-    if (sortByPrice === "low" || sortByPrice === "high") {
-      sortOptions.coursePrice = sortByPrice === "low" ? 1 : -1;
+    if (sortByPrice === "lowest") {
+      sortOptions.coursePrice = 1;
+    } else if (sortByPrice === "highest") {
+      sortOptions.coursePrice = -1;
+    } else if (sortByPrice === "newest") {
+      sortOptions.createdAt = -1;
+    } else if (sortByPrice === "oldest") {
+      sortOptions.createdAt = 1;
     }
 
     const courses = await Course.find(searchCriteria)

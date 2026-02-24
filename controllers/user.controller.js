@@ -80,7 +80,7 @@ export const logoutUser = async (_, res) => {
   try {
     return res
       .status(200)
-      .cookie("token", "", { maxAge: 0, sameSite: "none", secure: true })
+      .cookie("token", "", { maxAge: 0 })
       .json({ success: true, message: "User logged out successfully" });
   } catch (error) {
     return res.status(500).json({
@@ -93,6 +93,7 @@ export const logoutUser = async (_, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
+    console.log("req.id", req.id);
     const userId = req.id;
     const user = await User.findById(userId)
       .select("-password")
