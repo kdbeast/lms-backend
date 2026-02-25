@@ -219,7 +219,7 @@ export const deleteLecture = async (req, res) => {
     // delete lecture from course
     await Course.updateOne(
       { lectures: lectureId }, // find course with lecture id
-      { $pull: { lectures: lectureId } } // remove lecture from course
+      { $pull: { lectures: lectureId } }, // remove lecture from course
     );
 
     return res
@@ -249,7 +249,12 @@ export const getLectureById = async (req, res) => {
 
 export const searchCourses = async (req, res) => {
   try {
-    const { query = "", category = [], sortByPrice = "" } = req.query;
+    const {
+      keyword = "",
+      category = [],
+      sortByPrice = "",
+      priceRange = "",
+    } = req.query;
 
     // create search criteria
     const searchCriteria = {
@@ -257,11 +262,11 @@ export const searchCourses = async (req, res) => {
     };
 
     // only apply $or search if query is provided and not just whitespace
-    if (query && query.trim() !== "") {
+    if (keyword && keyword.trim() !== "") {
       searchCriteria.$or = [
-        { courseTitle: { $regex: query, $options: "i" } },
-        { category: { $regex: query, $options: "i" } },
-        { subTitle: { $regex: query, $options: "i" } },
+        { courseTitle: { $regex: keyword, $options: "i" } },
+        { category: { $regex: keyword, $options: "i" } },
+        { subTitle: { $regex: keyword, $options: "i" } },
       ];
     }
 
@@ -269,8 +274,8 @@ export const searchCourses = async (req, res) => {
     const categories = Array.isArray(category)
       ? category
       : category
-      ? [category]
-      : [];
+        ? [category]
+        : [];
 
     // if category is provided
     if (categories.length > 0) {
@@ -287,6 +292,21 @@ export const searchCourses = async (req, res) => {
       sortOptions.createdAt = -1;
     } else if (sortByPrice === "oldest") {
       sortOptions.createdAt = 1;
+    }
+
+    if (priceRange) {
+      let minPrice, maxPrice;
+
+      try {
+        [minPrice, maxPrice] = JSON.parse(priceRange);
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid price range format" });
+      }
+
+      searchCriteria.coursePrice = {
+        $gte: Number(minPrice),
+        $lte: Number(maxPrice),
+      };
     }
 
     const courses = await Course.find(searchCriteria)

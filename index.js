@@ -16,10 +16,6 @@ const PORT = process.env.PORT || 3000;
 
 connectToDB();
 
-app.use((req, res, next) => {
-  console.log("req icoming 111", req.id);
-  next();
-});
 // default middleware
 app.use(
   cors({
@@ -30,10 +26,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  console.log("req icoming 222", req.id);
-  next();
-});
 //apis
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/media", mediaRouter);
