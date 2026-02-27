@@ -1,22 +1,24 @@
 import express from "express";
+import upload from "../utils/multer.js";
 import {
-  loginUser,
-  logoutUser,
-  registerUser,
-  getUserProfile,
+  getEnrolledCourses,
   updateProfile,
 } from "../controllers/user.controller.js";
-import upload from "../utils/multer.js";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
+import { syncUser } from "../middlewares/syncUser.js";
+import { clerkAuth } from "../middlewares/clerkAuth.js";
 
 const router = express.Router();
 
-router.route("/login").post(loginUser);
-router.route("/logout").get(logoutUser);
-router.route("/register").post(registerUser);
-router.route("/profile").get(isAuthenticated, getUserProfile);
-router
-  .route("/profile/update")
-  .post(isAuthenticated, upload.single("profilePhoto"), updateProfile);
+// Get enrolled courses
+router.get("/enrolled-courses", clerkAuth, syncUser, getEnrolledCourses);
+
+// Update profile in MongoDB (optional)
+router.post(
+  "/profile/update",
+  clerkAuth,
+  syncUser,
+  upload.single("profilePhoto"),
+  updateProfile,
+);
 
 export default router;

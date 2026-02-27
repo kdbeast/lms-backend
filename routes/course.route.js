@@ -14,25 +14,68 @@ import {
   getPublishedCourses,
   getLectureByCourseId,
 } from "../controllers/course.controller.js";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
+
+import { clerkAuth } from "../middlewares/clerkAuth.js";
+import { syncUser } from "../middlewares/syncUser.js";
+import { adminOnly } from "../middlewares/adminOnly.js";
 
 const router = express.Router();
 
-router.route("/").post(isAuthenticated, createCourse);
-router.route("/search").get(isAuthenticated, searchCourses);
-router.route("/").get(isAuthenticated, getAllAdminCourses);
-router
-  .route("/:courseId")
-  .put(isAuthenticated, upload.single("courseThumbnail"), editCourse);
-router.route("/published-courses").get(getPublishedCourses);
-router.route("/:courseId").get(isAuthenticated, getCourseById);
-router.route("/:courseId/lecture").post(isAuthenticated, createLecture);
-router.route("/:courseId/lecture").get(isAuthenticated, getLectureByCourseId);
-router
-  .route("/:courseId/lecture/:lectureId")
-  .post(isAuthenticated, editLecture);
-router.route("/lecture/:lectureId").delete(isAuthenticated, deleteLecture);
-router.route("/lecture/:lectureId").get(isAuthenticated, getLectureById);
-router.route("/:courseId").patch(isAuthenticated, togglePublishCourse);
+/* ---------- PUBLIC ROUTES ---------- */
+
+// Anyone can see published courses
+router.get("/published-courses", getPublishedCourses);
+
+// Anyone can search
+router.get("/search", searchCourses);
+
+/* ---------- ADMIN ROUTES ---------- */
+
+router.post("/", clerkAuth, syncUser, adminOnly, createCourse);
+
+router.get("/", clerkAuth, syncUser, adminOnly, getAllAdminCourses);
+
+router.put(
+  "/:courseId",
+  clerkAuth,
+  syncUser,
+  adminOnly,
+  upload.single("courseThumbnail"),
+  editCourse,
+);
+
+router.patch("/:courseId", clerkAuth, syncUser, adminOnly, togglePublishCourse);
+
+router.post(
+  "/:courseId/lecture",
+  clerkAuth,
+  syncUser,
+  adminOnly,
+  createLecture,
+);
+
+router.post(
+  "/:courseId/lecture/:lectureId",
+  clerkAuth,
+  syncUser,
+  adminOnly,
+  editLecture,
+);
+
+router.delete(
+  "/lecture/:lectureId",
+  clerkAuth,
+  syncUser,
+  adminOnly,
+  deleteLecture,
+);
+
+/* ---------- PROTECTED USER ROUTES ---------- */
+
+router.get("/:courseId", clerkAuth, syncUser, getCourseById);
+
+router.get("/:courseId/lecture", clerkAuth, syncUser, getLectureByCourseId);
+
+router.get("/lecture/:lectureId", clerkAuth, syncUser, getLectureById);
 
 export default router;

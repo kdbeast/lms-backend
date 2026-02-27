@@ -2,21 +2,25 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
-    name: {
+    clerkUserId: {
       type: String,
       required: true,
+      unique: true,
+      index: true,
     },
     email: {
       type: String,
       required: true,
     },
-    password: {
+    name: {
       type: String,
       required: true,
     },
+    photoUrl: {
+      type: String,
+    },
     role: {
       type: String,
-      enum: ["instructor", "student"],
       default: "student",
     },
     enrolledCourses: [
@@ -25,14 +29,10 @@ const userSchema = new Schema(
         ref: "Course",
       },
     ],
-    photoUrl: {
-      type: String,
-      default: "",
-    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const User = model("User", userSchema);

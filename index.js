@@ -1,9 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import cookieParser from "cookie-parser";
 import connectToDB from "./database/db.js";
 import userRouter from "./routes/user.route.js";
+import { clerkMiddleware } from "@clerk/express";
 import mediaRouter from "./routes/media.route.js";
 import courseRouter from "./routes/course.route.js";
 import purchaseCourseRouter from "./routes/purchaseCourse.route.js";
@@ -24,7 +24,7 @@ app.use(
   }),
 );
 app.use(express.json());
-app.use(cookieParser());
+app.use(clerkMiddleware());
 
 //apis
 app.use("/api/v1/user", userRouter);
