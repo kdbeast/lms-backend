@@ -2,8 +2,9 @@ import { User } from "../models/user.model.js";
 
 export const syncUser = async (req, res, next) => {
   try {
-    const clerkUserId = req.auth.userId;
-    const { role, email, name } = req.auth.sessionClaims;
+    const auth = req.auth();
+    const { role, email, name } = auth.sessionClaims;
+    const clerkUserId = auth.userId;
 
     let user = await User.findOne({ clerkUserId });
 
@@ -14,7 +15,10 @@ export const syncUser = async (req, res, next) => {
         name,
         role: role || "student",
       });
-    } else if (user.role !== role) {
+    } else {
+      // 🔥 ALWAYS SYNC DB WITH CLERK
+      user.email = email;
+      user.name = name;
       user.role = role || "student";
       await user.save();
     }

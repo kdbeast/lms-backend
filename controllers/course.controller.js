@@ -18,7 +18,7 @@ export const createCourse = async (req, res) => {
     const course = await Course.create({
       courseTitle,
       category,
-      creator: req.id,
+      creator: req.dbUser._id,
     });
 
     return res
@@ -32,7 +32,7 @@ export const createCourse = async (req, res) => {
 
 export const getAllAdminCourses = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.dbUser._id;
     const courses = await Course.find({ creator: userId });
 
     if (!courses) {

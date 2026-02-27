@@ -1,7 +1,6 @@
 import Stripe from "stripe";
 import { User } from "../models/user.model.js";
 import { Course } from "../models/course.model.js";
-import { Lecture } from "../models/lecture.model.js";
 import { CoursePurchase } from "../models/purchaseCourse.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -119,14 +118,14 @@ export const stripeWebhook = async (req, res) => {
       await User.findByIdAndUpdate(
         purchase.userId,
         { $addToSet: { enrolledCourses: purchase.courseId._id } }, // Add course ID to enrolledCourses
-        { new: true }
+        { new: true },
       );
 
       // Update course to add user ID to enrolledStudents
       await Course.findByIdAndUpdate(
         purchase.courseId._id,
         { $addToSet: { enrolledStudents: purchase.userId } }, // Add user ID to enrolledStudents
-        { new: true }
+        { new: true },
       );
     } catch (error) {
       console.error("Error handling event:", error);
@@ -139,14 +138,11 @@ export const stripeWebhook = async (req, res) => {
 
 export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.dbUser._id;
     const { courseId } = req.params;
 
     const course = await Course.findById(courseId)
-      .populate({
-        path: "creator",
-        select: "-password -email -role -photoUrl -enrolledCourses",
-      })
+      .populate("creator", "name email")
       .populate({
         path: "lectures",
         match: { isPreviewFree: true },
@@ -185,7 +181,7 @@ export const getAllPurchasedCourse = async (req, res) => {
     // Filter only those courses which are created by this instructor
     const instructorPurchasedCourse = purchasedCourse.filter(
       (purchase) =>
-        purchase.courseId && purchase.courseId.creator.toString() === req.id
+        purchase.courseId && purchase.courseId.creator.toString() === req.id,
     );
 
     return res.status(200).json(instructorPurchasedCourse);
