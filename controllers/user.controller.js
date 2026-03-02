@@ -60,7 +60,9 @@ export const updateProfile = async (req, res) => {
     const { name } = req.body;
     const profilePhoto = req.file;
 
-    const user = await User.findById(req.dbUser._id);
+    const user = await User.findOne({
+      clerkUserId: req.auth.userId,
+    });
 
     if (!user) {
       return res.status(404).json({
@@ -101,18 +103,12 @@ export const updateProfile = async (req, res) => {
 /* ---------- ENROLLED COURSES ---------- */
 export const getEnrolledCourses = async (req, res) => {
   try {
-    const user = await User.findById(req.dbUser._id).populate(
-      "enrolledCourses",
-    );
-
-    return res.status(200).json({
-      success: true,
-      courses: user.enrolledCourses,
+    const user = await User.findOne({
+      clerkUserId: req.auth.userId,
     });
+    return res.json(user);
   } catch (error) {
-    return res.status(500).json({
-      message: "Failed to fetch enrolled courses",
-      error: error.message,
-    });
+    console.error("ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };

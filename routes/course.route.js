@@ -15,7 +15,7 @@ import {
   getLectureByCourseId,
 } from "../controllers/course.controller.js";
 
-// import { clerkAuth } from "../middlewares/auth.js";
+import { auth } from "../middlewares/auth.js";
 import { adminOnly } from "../middlewares/adminOnly.js";
 
 const router = express.Router();
@@ -26,55 +26,36 @@ const router = express.Router();
 router.get("/published-courses", getPublishedCourses);
 
 // Anyone can search
-// router.get("/search", searchCourses);
+router.get("/search", searchCourses);
 
 // /* ---------- ADMIN ROUTES ---------- */
 
-// router.post("/", clerkAuth, syncUser, adminOnly, createCourse);
+router.post("/", auth, adminOnly, createCourse);
 
-// router.get("/", clerkAuth, syncUser, adminOnly, getAllAdminCourses);
+router.get("/", auth, adminOnly, getAllAdminCourses);
 
-// router.put(
-//   "/:courseId",
-//   clerkAuth,
-//   syncUser,
-//   adminOnly,
-//   upload.single("courseThumbnail"),
-//   editCourse,
-// );
+router.put(
+  "/:courseId",
+  auth,
+  adminOnly,
+  upload.single("courseThumbnail"),
+  editCourse,
+);
 
-// router.patch("/:courseId", clerkAuth, syncUser, adminOnly, togglePublishCourse);
+router.patch("/:courseId", auth, adminOnly, togglePublishCourse);
 
-// router.post(
-//   "/:courseId/lecture",
-//   clerkAuth,
-//   syncUser,
-//   adminOnly,
-//   createLecture,
-// );
+router.post("/:courseId/lecture", auth, adminOnly, createLecture);
 
-// router.post(
-//   "/:courseId/lecture/:lectureId",
-//   clerkAuth,
-//   syncUser,
-//   adminOnly,
-//   editLecture,
-// );
+router.post("/:courseId/lecture/:lectureId", auth, adminOnly, editLecture);
 
-// router.delete(
-//   "/lecture/:lectureId",
-//   clerkAuth,
-//   syncUser,
-//   adminOnly,
-//   deleteLecture,
-// );
+router.delete("/lecture/:lectureId", auth, adminOnly, deleteLecture);
 
 // /* ---------- PROTECTED USER ROUTES ---------- */
 
-// router.get("/:courseId", clerkAuth, syncUser, getCourseById);
+router.get("/:courseId", auth, getCourseById);
 
-// router.get("/:courseId/lecture", clerkAuth, syncUser, getLectureByCourseId);
+router.get("/:courseId/lecture", auth, getLectureByCourseId);
 
-// router.get("/lecture/:lectureId", clerkAuth, syncUser, getLectureById);
+router.get("/lecture/:lectureId", auth, getLectureById);
 
 export default router;

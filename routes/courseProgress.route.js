@@ -5,26 +5,20 @@ import {
   getCourseProgress,
   updateLectureProgress,
 } from "../controllers/courseProgress.controller.js";
-
-// import { clerkAuth } from "../middlewares/auth.js";
+import { auth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
 /* ---------- GET COURSE PROGRESS ---------- */
-// router.get("/:courseId", clerkAuth, syncUser, getCourseProgress);
+router.get("/:courseId", auth, getCourseProgress);
 
 // /* ---------- UPDATE LECTURE VIEW ---------- */
-// router.post(
-//   "/:courseId/lecture/:lectureId/view",
-//   clerkAuth,
-//   syncUser,
-//   updateLectureProgress,
-// );
+router.post("/:courseId/lecture/:lectureId/view", auth, updateLectureProgress);
 
 // /* ---------- MARK COURSE COMPLETED ---------- */
-// router.post("/:courseId/completed", clerkAuth, syncUser, markAsCompleted);
+router.post("/:courseId/completed", auth, markAsCompleted);
 
-// /* ---------- MARK COURSE INCOMPLETED ---------- */
-// router.post("/:courseId/incompleted", clerkAuth, syncUser, markAsInCompleted);
+/* ---------- MARK COURSE INCOMPLETED ---------- */
+router.post("/:courseId/incompleted", auth, markAsInCompleted);
 
 export default router;

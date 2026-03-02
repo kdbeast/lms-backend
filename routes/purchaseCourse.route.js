@@ -1,4 +1,5 @@
 import express from "express";
+import { auth } from "../middlewares/auth.js";
 import {
   stripeWebhook,
   createCheckoutSession,
@@ -6,34 +7,26 @@ import {
   getPurchaseCourseDetailWithPurchaseStatus,
 } from "../controllers/purchaseCourse.controller.js";
 
-// import { clerkAuth } from "../middlewares/auth.js";
-
 const router = express.Router();
 
 /* ---------- CHECKOUT ---------- */
-// router.post(
-//   "/checkout/create-checkout-session",
-//   clerkAuth,
-//   syncUser,
-//   createCheckoutSession,
-// );
+router.post("/checkout/create-checkout-session", auth, createCheckoutSession);
 
 // /* ---------- STRIPE WEBHOOK (PUBLIC) ---------- */
-// router.post(
-//   "/webhook",
-//   express.raw({ type: "application/json" }),
-//   stripeWebhook,
-// );
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook,
+);
 
 // /* ---------- PURCHASE DETAILS ---------- */
-// router.get(
-//   "/course/:courseId/detail-with-status",
-//   clerkAuth,
-//   syncUser,
-//   getPurchaseCourseDetailWithPurchaseStatus,
-// );
+router.get(
+  "/course/:courseId/detail-with-status",
+  auth,
+  getPurchaseCourseDetailWithPurchaseStatus,
+);
 
 // /* ---------- ALL PURCHASED COURSES ---------- */
-// router.get("/", clerkAuth, syncUser, getAllPurchasedCourse);
+router.get("/", auth, getAllPurchasedCourse);
 
 export default router;
