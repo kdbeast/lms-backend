@@ -21,7 +21,6 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      default: "student",
     },
     enrolledCourses: [
       {

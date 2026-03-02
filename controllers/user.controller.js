@@ -2,7 +2,38 @@ import {
   uploadToCloudinary,
   deleteFromCloudinary,
 } from "../utils/cloudinary.js";
+import { clerkClient } from "@clerk/express";
 import { User } from "../models/user.model.js";
+
+export const syncUser = async (req, res) => {
+  try {
+    const { userId } = req.auth;
+
+    const clerkUser = await clerkClient.users.getUser(userId);
+
+    const email = clerkUser.emailAddresses[0].emailAddress;
+    const name = clerkUser.fullName;
+    const role = clerkUser.unsafeMetadata.role;
+
+    let user = await User.findOne({ clerkUserId: userId });
+
+    if (!user) {
+      user = await User.create({
+        clerkUserId: userId,
+        email,
+        name,
+        role,
+      });
+    } else {
+      return res.status(200).json({ success: true, user });
+    }
+
+    return res.status(201).json({ success: true, user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Sync failed" });
+  }
+};
 
 /* ---------- GET PROFILE ---------- */
 export const getUserProfile = async (req, res) => {

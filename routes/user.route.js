@@ -3,22 +3,24 @@ import upload from "../utils/multer.js";
 import {
   getEnrolledCourses,
   updateProfile,
+  syncUser
 } from "../controllers/user.controller.js";
-import { syncUser } from "../middlewares/syncUser.js";
-import { clerkAuth } from "../middlewares/clerkAuth.js";
+import { auth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
 // Get enrolled courses
-router.get("/enrolled-courses", clerkAuth, syncUser, getEnrolledCourses);
+// router.get("/enrolled-courses", clerkAuth, syncUser, getEnrolledCourses);
 
 // Update profile in MongoDB (optional)
-router.post(
-  "/profile/update",
-  clerkAuth,
-  syncUser,
-  upload.single("profilePhoto"),
-  updateProfile,
-);
+// router.post(
+//   "/profile/update",
+//   clerkAuth,
+//   syncUser,
+//   upload.single("profilePhoto"),
+//   updateProfile,
+// );
+
+router.post("/sync-user", auth, syncUser);
 
 export default router;
