@@ -15,8 +15,12 @@ const lectureSchema = new Schema(
     isPreviewFree: {
       type: Boolean,
     },
+    sectionId: {
+      type: Schema.Types.ObjectId,
+      ref: "Section",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Lecture = model("Lecture", lectureSchema);

@@ -6,6 +6,7 @@ import userRouter from "./routes/user.route.js";
 import { clerkMiddleware } from "@clerk/express";
 import mediaRouter from "./routes/media.route.js";
 import courseRouter from "./routes/course.route.js";
+import sectionRouter from "./routes/section.route.js";
 import purchaseCourseRouter from "./routes/purchaseCourse.route.js";
 import courseProgressRouter from "./routes/courseProgress.route.js";
 
@@ -30,6 +31,7 @@ app.use(clerkMiddleware());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/media", mediaRouter);
 app.use("/api/v1/course", courseRouter);
+app.use("/api/v1/section", sectionRouter);
 app.use("/api/v1/purchase", purchaseCourseRouter);
 app.use("/api/v1/progress", courseProgressRouter);
 

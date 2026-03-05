@@ -46,10 +46,16 @@ const courseSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    sections: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Section",
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Course = model("Course", courseSchema);
