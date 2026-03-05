@@ -119,6 +119,63 @@ export const getCourseById = async (req, res) => {
   }
 };
 
+export const deleteCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Course not found",
+      });
+    }
+
+    if (course.creator.toString() !== req.dbUser._id.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
+
+    // find all sections of this course
+    const sections = await Section.find({ courseId });
+
+    for (const section of sections) {
+      const lectures = await Lecture.find({
+        _id: { $in: section.lectures },
+      });
+
+      // delete videos from cloudinary
+      for (const lecture of lectures) {
+        if (lecture.publicId) {
+          await deleteFromCloudinary(lecture.publicId);
+        }
+      }
+
+      // delete lectures
+      await Lecture.deleteMany({
+        _id: { $in: section.lectures },
+      });
+    }
+
+    // delete sections
+    await Section.deleteMany({ courseId });
+
+    // delete course
+    await Course.findByIdAndDelete(courseId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Course deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Failed to delete course",
+    });
+  }
+};
+
 export const createLecture = async (req, res) => {
   try {
     const { courseId } = req.params;

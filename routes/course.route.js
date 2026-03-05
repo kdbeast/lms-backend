@@ -8,6 +8,7 @@ import {
   createLecture,
   deleteLecture,
   searchCourses,
+  deleteCourse,
   getLectureById,
   reorderLectures,
   getAllAdminCourses,
@@ -28,6 +29,8 @@ router.get("/published-courses", getPublishedCourses);
 
 // Anyone can search
 router.get("/search", searchCourses);
+
+router.delete("/:courseId", auth, adminOnly, deleteCourse);
 
 router.patch("/lecture/reorder", reorderLectures);
 
