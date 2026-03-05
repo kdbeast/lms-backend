@@ -19,6 +19,10 @@ const lectureSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Section",
     },
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );

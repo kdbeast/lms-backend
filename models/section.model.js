@@ -19,6 +19,10 @@ const sectionSchema = new Schema(
         ref: "Lecture",
       },
     ],
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
