@@ -350,6 +350,37 @@ export const getPublishedCourses = async (_, res) => {
   }
 };
 
+export const reorderLectures = async (req, res) => {
+  try {
+    const { lectures } = req.body;
+
+    if (!Array.isArray(lectures)) {
+      return res.status(400).json({
+        message: "Lectures array is required",
+      });
+    }
+
+    const bulkOps = lectures.map((lecture) => ({
+      updateOne: {
+        filter: { _id: lecture._id },
+        update: { order: lecture.order },
+      },
+    }));
+
+    await Lecture.bulkWrite(bulkOps);
+
+    return res.status(200).json({
+      success: true,
+      message: "Lecture order updated",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Failed to reorder lectures",
+    });
+  }
+};
+
 // publish course unpublished course
 export const togglePublishCourse = async (req, res) => {
   try {

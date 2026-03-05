@@ -9,6 +9,7 @@ import {
   deleteLecture,
   searchCourses,
   getLectureById,
+  reorderLectures,
   getAllAdminCourses,
   togglePublishCourse,
   getPublishedCourses,
@@ -27,6 +28,8 @@ router.get("/published-courses", getPublishedCourses);
 
 // Anyone can search
 router.get("/search", searchCourses);
+
+router.patch("/lecture/reorder", reorderLectures);
 
 // /* ---------- ADMIN ROUTES ---------- */
 
