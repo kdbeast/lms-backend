@@ -12,7 +12,30 @@ export const getCourseProgress = async (req, res) => {
       courseId,
     }).populate("courseId");
 
-    const courseDetails = await Course.findById(courseId).populate("lectures");
+    const course = await Course.findById(courseId).populate({
+      path: "sections",
+      populate: {
+        path: "lectures",
+        select: "-publicId",
+      },
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found.",
+      });
+    }
+
+    // Flatten lectures
+    const lectures = course.sections.flatMap((section) => section.lectures);
+
+    // Build clean courseDetails object
+    const courseDetails = {
+      _id: course._id,
+      courseTitle: course.courseTitle,
+      lectures,
+    };
 
     if (!courseDetails) {
       return res.status(404).json({
@@ -71,7 +94,7 @@ export const updateLectureProgress = async (req, res) => {
 
     // Find the lecture progress in the course progress
     const lectureIndex = courseProgress.lecturesProgress.findIndex(
-      (lecture) => lecture.lectureId === lectureId
+      (lecture) => lecture.lectureId.toString() === lectureId,
     );
 
     if (lectureIndex !== -1) {
@@ -87,13 +110,22 @@ export const updateLectureProgress = async (req, res) => {
 
     // if all lecture is complete
     const lectureProgressLength = courseProgress.lecturesProgress.filter(
-      (lectureProg) => lectureProg.viewed
+      (lectureProg) => lectureProg.viewed,
     ).length;
 
-    const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId).populate({
+      path: "sections",
+      populate: { path: "lectures" },
+    });
 
-    if (course.lectures.length === lectureProgressLength)
+    const totalLectures = course.sections.reduce(
+      (acc, section) => acc + section.lectures.length,
+      0,
+    );
+
+    if (lectureProgressLength === totalLectures) {
       courseProgress.completed = true;
+    }
 
     await courseProgress.save();
 
@@ -122,7 +154,7 @@ export const markAsCompleted = async (req, res) => {
     }
 
     courseProgress.lecturesProgress.forEach(
-      (lectureProgress) => (lectureProgress.viewed = true)
+      (lectureProgress) => (lectureProgress.viewed = true),
     );
     courseProgress.completed = true;
 
@@ -149,7 +181,7 @@ export const markAsInCompleted = async (req, res) => {
     }
 
     courseProgress.lecturesProgress.forEach(
-      (lectureProgress) => (lectureProgress.viewed = false)
+      (lectureProgress) => (lectureProgress.viewed = false),
     );
     courseProgress.completed = false;
     await courseProgress.save();

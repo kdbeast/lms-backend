@@ -141,27 +141,44 @@ export const getPurchaseCourseDetailWithPurchaseStatus = async (req, res) => {
     const userId = req.dbUser._id;
     const { courseId } = req.params;
 
-    const course = await Course.findById(courseId)
-      .populate("creator", "name email")
-      .populate({
-        path: "lectures",
-        match: { isPreviewFree: true },
-        select: "-publicId",
-      });
-
     const purchased = await CoursePurchase.findOne({
       userId,
       courseId,
       status: "completed",
     });
 
+    const course = await Course.findById(courseId)
+      .populate("creator", "name email")
+      .populate({
+        path: "sections",
+        populate: {
+          path: "lectures",
+          select: "-publicId",
+        },
+      });
+
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
+    const isInstructor = course.creator._id.equals(userId);
+    const allowFullAccess = purchased || isInstructor;
+
+    // Hide locked lectures if user doesn't have access
+    if (!allowFullAccess) {
+      course.sections.forEach((section) => {
+        section.lectures = section.lectures.map((lecture) => {
+          if (!lecture.isPreviewFree) {
+            lecture.videoUrl = null;
+          }
+          return lecture;
+        });
+      });
+    }
+
     return res.status(200).json({
       course,
-      purchased: !!purchased || course.creator?._id.toString() === userId,
+      purchased: allowFullAccess,
     });
   } catch (error) {
     console.error("Error fetching purchase course details:", error);

@@ -299,17 +299,41 @@ export const deleteLecture = async (req, res) => {
 
 export const getLectureById = async (req, res) => {
   try {
+    const userId = req.dbUser._id;
     const { lectureId } = req.params;
-    const lecture = await Lecture.findById(lectureId);
 
+    const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
-      return res.status(404).json({ message: "Lecture not found!" });
+      return res.status(404).json({ message: "Lecture not found" });
     }
 
-    return res.status(200).json({ lecture });
+    const course = await Course.findById(lecture.courseId);
+
+    // Check if instructor
+    const isInstructor = course.creator.equals(userId);
+
+    // Check if purchased
+    const purchase = await CoursePurchase.findOne({
+      userId,
+      courseId: course._id,
+      status: "completed",
+    });
+
+    const isPurchased = !!purchase;
+
+    // Allow access if:
+    if (!lecture.isPreviewFree && !isInstructor && !isPurchased) {
+      return res.status(403).json({
+        message: "You must purchase this course to access this lecture",
+      });
+    }
+
+    return res.status(200).json({
+      lecture,
+    });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Failed to get lecture by id" });
+    console.error("Lecture access error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
