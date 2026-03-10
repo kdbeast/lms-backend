@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   deleteFromCloudinary,
   uploadToCloudinary,
@@ -177,6 +178,9 @@ export const deleteCourse = async (req, res) => {
 };
 
 export const createLecture = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     const { courseId } = req.params;
     const { lectureTitle, isPreviewFree, videoInfo, sectionId } = req.body;
@@ -187,30 +191,44 @@ export const createLecture = async (req, res) => {
       });
     }
 
-    // create lecture
-    const lecture = await Lecture.create({
-      lectureTitle,
-      isPreviewFree,
-      videoUrl: videoInfo?.videoUrl,
-      publicId: videoInfo?.publicId,
-      sectionId,
-    });
+    const section = await Section.findById(sectionId).session(session);
 
-    // push lecture into section
-    const section = await Section.findById(sectionId);
-
-    if (section) {
-      section.lectures.push(lecture._id);
-      await section.save();
+    if (!section) {
+      return res.status(404).json({
+        message: "Section not found",
+      });
     }
+
+    const lecture = await Lecture.create(
+      [
+        {
+          lectureTitle,
+          isPreviewFree,
+          videoUrl: videoInfo.videoUrl,
+          videoKey: videoInfo.key,
+          sectionId,
+        },
+      ],
+      { session },
+    );
+
+    section.lectures.push(lecture[0]._id);
+    await section.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     return res.status(201).json({
       success: true,
-      lecture,
+      lecture: lecture[0],
       message: "Lecture created successfully",
     });
   } catch (error) {
-    console.log(error);
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error(error);
+
     return res.status(500).json({
       message: "Failed to create lecture",
     });

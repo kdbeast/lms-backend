@@ -9,7 +9,7 @@ const lectureSchema = new Schema(
     videoUrl: {
       type: String,
     },
-    publicId: {
+    videoKey: {
       type: String,
     },
     isPreviewFree: {
@@ -22,6 +22,10 @@ const lectureSchema = new Schema(
     order: {
       type: Number,
       default: 0,
+    },
+    courseId: {
+      type: Schema.Types.ObjectId,
+      ref: "Course",
     },
   },
   { timestamps: true },
