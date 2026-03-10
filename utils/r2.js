@@ -24,7 +24,7 @@ export const uploadToR2 = async (file, name) => {
     Bucket: process.env.R2_BUCKET_NAME,
     Key: key,
     Body: file.buffer,
-    ContentType: name,
+    ContentType: file.mimetype,
   };
 
   await s3.send(new PutObjectCommand(params));

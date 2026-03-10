@@ -1,8 +1,5 @@
 import mongoose from "mongoose";
-import {
-  deleteFromCloudinary,
-  uploadToCloudinary,
-} from "../utils/cloudinary.js";
+import { uploadToR2 } from "../utils/r2.js";
 import { Course } from "../models/course.model.js";
 import { Lecture } from "../models/lecture.model.js";
 import { Section } from "../models/section.model.js";
@@ -57,24 +54,13 @@ export const editCourse = async (req, res) => {
       category,
       courseLevel,
       coursePrice,
+      courseThumbnail,
     } = req.body;
-    const thumbnail = req.file;
 
     let course = await Course.findById(courseId);
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
-    }
-
-    let courseThumbnail;
-    if (thumbnail) {
-      if (course.courseThumbnail) {
-        const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
-        await deleteFromCloudinary(publicId); // delete old thumbnail
-      }
-      // upload new thumbnail
-      const uploadResponse = await uploadToCloudinary(thumbnail.path);
-      courseThumbnail = uploadResponse.secure_url;
     }
 
     const updateData = {
